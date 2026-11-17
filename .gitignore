@@ -1,0 +1,15 @@
+# Dados locais do aluno (não publicar progresso pessoal em repositório público)
+dojo-logica/dados/
+
+# Cache e artefatos Python
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Build estático e Vercel
+dist/
+.vercel/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
