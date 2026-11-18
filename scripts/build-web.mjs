@@ -70,6 +70,16 @@ const runtimeJs = [
 
 fs.writeFileSync(path.join(pastaDist, "runtime-config.js"), runtimeJs, "utf8");
 
+// Headers de cache para Cloudflare Workers Static Assets / Cloudflare Pages
+const cfHeaders = [
+  "/dojo_bundle.json",
+  "  Cache-Control: public, max-age=0, must-revalidate",
+  "/runtime-config.js",
+  "  Cache-Control: public, max-age=0, must-revalidate",
+  "",
+].join("\n");
+fs.writeFileSync(path.join(pastaDist, "_headers"), cfHeaders, "utf8");
+
 const bundle = {};
 coletarPython(path.join(pastaDojo, "banco"), "banco", bundle);
 coletarPython(path.join(pastaDojo, "motor"), "motor", bundle);
