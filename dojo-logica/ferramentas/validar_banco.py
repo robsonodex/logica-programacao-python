@@ -68,10 +68,24 @@ def validar_modelo(m):
         if not 2 <= len(q["dicas"]) <= 4:
             problemas.append("use de 2 a 4 dicas")
         enunciados.add(q["enunciado"] + q["solucao"] + q["codigo_inicial"] + repr(q["testes"]))
-        if m.tipo in ("corrigir", "completar") and not q["codigo_inicial"].strip():
+        if m.tipo in ("corrigir", "completar", "quebrar") and not q["codigo_inicial"].strip():
             problemas.append("tipo exige codigo_inicial")
         if m.tipo == "completar" and "___" not in q["codigo_inicial"]:
             problemas.append("codigo_inicial de 'completar' precisa ter ___")
+        if m.tipo == "quebrar":
+            t0 = q["testes"][0]
+            chamada_q = f"print(repr({q['funcao_quebrar']}({t0['entrada']})))" if q.get("modo_quebrar") == "args" else t0["chamada"]
+            ent_q = "" if q.get("modo_quebrar") == "args" else t0["entrada"]
+            s_ref, e_ref = rodar_com_limite(q["solucao"], ent_q, chamada_q)
+            if e_ref:
+                problemas.append(f"semente {s}: gabarito de 'quebrar' falhou na entrada de exemplo -> {e_ref}")
+            else:
+                s_bug, e_bug = rodar_com_limite(q["codigo_inicial"], ent_q, chamada_q)
+                if not e_bug and s_bug is not None and s_bug.strip() == (s_ref or "").strip():
+                    problemas.append(f"semente {s}: entrada de exemplo não quebrou o código bugado")
+            if problemas:
+                break
+            continue
         if m.tipo in ("codigo", "funcao", "corrigir", "completar"):
             usa_input = "input(" in q["solucao"]
             if (usa_input or m.tipo == "funcao") and len(q["testes"]) < 3:

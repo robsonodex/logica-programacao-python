@@ -19,7 +19,7 @@ async function initEngine(bundleUrl, initialProgressJson) {
 
       const py = await loadPyodide({ indexURL: PYODIDE_INDEX });
 
-      notify("status", { stage: "loading", message: "Carregando módulos e exercícios..." });
+      notify("status", { stage: "loading", message: "Carregando módulos, 22 estágios e analisador..." });
       const resp = await fetch(bundleUrl, { cache: "no-store" });
       if (!resp.ok) {
         throw new Error(`Falha ao carregar o pacote de exercícios (HTTP ${resp.status}).`);
@@ -75,8 +75,20 @@ def _dojo_dispatch(method, path, query_json, body_json):
                 "/api/solucao": lambda: progresso.revelar_solucao(c["id"]),
                 "/api/rascunho": lambda: progresso.salvar_rascunho(c["id"], c.get("codigo", "")) or {"ok": True},
                 "/api/estagio": lambda: progresso.mudar_estagio(int(c["estagio"])),
+                "/api/desbloquear": lambda: progresso.desbloquear(c.get("estagio"), c.get("modo_livre")),
                 "/api/regenerar": lambda: progresso.regenerar_hoje(),
                 "/api/treino-extra": lambda: progresso.treino_extra(progresso.hoje()),
+                "/api/treino-bugs": lambda: progresso.treino_bugs(),
+                "/api/padrao": lambda: progresso.salvar_padrao(
+                    c["id"], c.get("contrato", ""), c.get("edge_cases", ""), c.get("plano", ""), c.get("feynman", "")
+                ),
+                "/api/padrao/excluir": lambda: progresso.excluir_padrao(c["id"]),
+                "/api/simulado/iniciar": lambda: progresso.iniciar_simulado(
+                    c.get("trilha", "entrevista"), int(c.get("duracao_min", 30))
+                ),
+                "/api/simulado/avaliar": lambda: progresso.avaliar_simulado(
+                    c["id"], c.get("respostas", []), int(c.get("duracao_usada_seg", 0))
+                ),
                 "/api/progresso": lambda: progresso.importar(c),
             }
             if path not in rotas:

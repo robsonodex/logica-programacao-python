@@ -37,6 +37,7 @@ TIPOS = {
     "prever": "Preveja a saída",
     "corrigir": "Caça ao bug",
     "completar": "Complete o código",
+    "quebrar": "Quebre o código",
 }
 
 CONCEITOS_VALIDOS = {
@@ -44,6 +45,12 @@ CONCEITOS_VALIDOS = {
     "precedencia", "comparacao", "logicos", "if_else", "elif", "while",
     "contador", "acumulador", "for_range", "strings", "fstring", "listas",
     "funcoes", "return", "depuracao", "teste_de_mesa",
+    # Bloco Entrevista Técnica (Estágios 14 a 18)
+    "dicionarios", "sets", "tuplas", "comprehensions", "ordenacao",
+    "excecoes", "dois_ponteiros", "janela_deslizante", "pilha_fila",
+    "busca_binaria", "recursao", "complexidade",
+    # Bloco IA & Automação 2027 (Estágios 19 a 22)
+    "json_apis", "pipelines_llm", "maquina_estados", "auditoria_ia",
 }
 
 
@@ -62,6 +69,10 @@ class Modelo:
         dados.setdefault("testes", [{"entrada": ""}])
         dados.setdefault("codigo_inicial", "")
         dados.setdefault("testes_visiveis", 1)
+        dados.setdefault("modo_quebrar", "input")
+        dados.setdefault("funcao_quebrar", "")
+        dados.setdefault("placeholder_quebrar", "")
+        dados.setdefault("benchmark", None)
         for t in dados["testes"]:
             t.setdefault("entrada", "")
             t.setdefault("chamada", "")

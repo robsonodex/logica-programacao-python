@@ -688,4 +688,399 @@ CONCEITOS = {
         ],
         "dica_de_ouro": "Quem consegue prever o que o código vai fazer antes de apertar Executar já domina metade da programação.",
     },
+    "dicionarios": {
+        "nome": "Dicionários (Hash Maps)",
+        "resumo": "Estrutura chave -> valor com busca quase instantânea O(1), essencial em entrevistas e APIs.",
+        "explicacao": (
+            "Um **dicionário** (`dict`) associa chaves únicas a valores, como `{\"ana\": 9.5, \"bruno\": 8.0}`. "
+            "Enquanto procurar um item numa lista percorre elemento por elemento (`O(n)`), buscar uma chave num dicionário "
+            "leva tempo constante (`O(1)`).\n\n"
+            "Padrões mais cobrados em entrevistas e automações:\n"
+            "- **Contagem de frequência:** `cont[x] = cont.get(x, 0) + 1`.\n"
+            "- **Agrupamento:** `grupos.setdefault(chave, []).append(item)`.\n"
+            "- **Índice rápido (Two Sum / lookup por ID):** guardar itens vistos para achar complementos sem laço duplo."
+        ),
+        "exemplo": (
+            "palavras = ['ia', 'python', 'ia', 'dados', 'python', 'ia']\n"
+            "contagem = {}\n"
+            "for p in palavras:\n"
+            "    contagem[p] = contagem.get(p, 0) + 1\n"
+            "print(contagem)\n"
+        ),
+        "erros_comuns": [
+            "Acessar `d[chave]` diretamente quando a chave pode não existir (gera `KeyError`). Use `d.get(chave, padrao)`.",
+            "Usar lista como chave de dicionário (listas são mutáveis; use tuplas ou strings como chave).",
+            "Modificar o tamanho do dicionário enquanto itera sobre ele diretamente.",
+        ],
+        "dica_de_ouro": "Sempre que você se pegar escrevendo um `for` dentro de outro `for` para procurar algo, pergunte: um `dict` resolve em uma passada?",
+    },
+    "sets": {
+        "nome": "Conjuntos (Sets)",
+        "resumo": "Coleção sem duplicatas com teste de pertinência `x in conjunto` em tempo O(1).",
+        "explicacao": (
+            "Um **conjunto** (`set`) guarda apenas elementos únicos e permite verificar se um valor já foi visto em tempo `O(1)`.\n\n"
+            "Operações poderosas de conjuntos:\n"
+            "- **União:** `a | b` (todos os itens sem repetir)\n"
+            "- **Interseção:** `a & b` (itens em comum)\n"
+            "- **Diferença:** `a - b` (o que existe em `a` mas falta em `b`)\n"
+            "- **Deduplicação:** `vistos = set()` (Atenção: `{}` cria dicionário vazio, não `set`!)."
+        ),
+        "exemplo": (
+            "enviados = {'id1', 'id2', 'id3'}\n"
+            "novos = ['id2', 'id4', 'id1', 'id5']\n"
+            "pendentes = [x for x in novos if x not in enviados]\n"
+            "print(pendentes)\n"
+        ),
+        "erros_comuns": [
+            "Escrever `s = {}` achando que é conjunto vazio (é dicionário!). Use `s = set()`.",
+            "Depender da ordem dos elementos de um `set` — conjuntos não garantem ordem fixa.",
+        ],
+        "dica_de_ouro": "Para detectar duplicatas ou checar se um ID já foi processado, `set` é quase sempre a ferramenta certa.",
+    },
+    "tuplas": {
+        "nome": "Tuplas e desempacotamento",
+        "resumo": "Sequências imutáveis usadas para registros fixos, chaves compostas e retornos múltiplos.",
+        "explicacao": (
+            "Uma **tupla** (`(a, b)`) é parecida com uma lista, mas **imutável**: depois de criada não pode ser alterada. "
+            "Por ser imutável, pode servir de chave em dicionários e conjuntos.\n\n"
+            "Em Python idiomático, tuplas brilham no **desempacotamento**:\n"
+            "- `x, y = ponto`\n"
+            "- `a, b = b, a` (troca de valores sem variável auxiliar)\n"
+            "- `for i, valor in enumerate(lista):` e `for nome, nota in zip(nomes, notas):`"
+        ),
+        "exemplo": (
+            "nomes = ['Ana', 'Bruno']\n"
+            "notas = [9.0, 7.5]\n"
+            "for i, (nome, nota) in enumerate(zip(nomes, notas), start=1):\n"
+            "    print(f'{i}. {nome}: {nota}')\n"
+        ),
+        "erros_comuns": [
+            "Criar tupla de 1 elemento como `(5)` — isso é só o inteiro `5`. Precisa da vírgula: `(5,)`.",
+            "Tentar alterar `t[0] = 10` em uma tupla (gera `TypeError`).",
+        ],
+        "dica_de_ouro": "Use listas para coleções homogêneas que crescem e tuplas para registros fixos ou retornos múltiplos de funções.",
+    },
+    "comprehensions": {
+        "nome": "Comprehensions",
+        "resumo": "Forma concisa e legível de transformar e filtrar listas, dicionários e conjuntos em uma expressão.",
+        "explicacao": (
+            "**Comprehensions** substituem o padrão repetitivo de criar lista vazia + `for` + `if` + `append` por uma expressão limpa:\n"
+            "- Lista: `[x * 2 for x in nums if x > 0]`\n"
+            "- Dicionário: `{k: v for k, v in itens}`\n"
+            "- Conjunto: `{s.lower() for s in tags}`\n\n"
+            "Use comprehensions quando a transformação for simples (1 linha clara). Se a lógica tiver muitos desvios ou efeitos colaterais, um `for` tradicional é mais legível."
+        ),
+        "exemplo": (
+            "precos = [10, -5, 25, 0, 40]\n"
+            "validos = [p * 1.1 for p in precos if p > 0]\n"
+            "print([round(v, 2) for v in validos])\n"
+        ),
+        "erros_comuns": [
+            "Confundir a posição do `if`: filtro fica no **fim** (`[x for x in a if x > 0]`), mas condicional `if/else` fica no **início** (`['par' if x % 2 == 0 else 'impar' for x in a]`).",
+            "Aninhar 3 loops dentro de uma única comprehension — destrói a legibilidade em entrevista.",
+        ],
+        "dica_de_ouro": "Clareza sempre vence esperteza: uma comprehension boa se lê quase como uma frase em português.",
+    },
+    "ordenacao": {
+        "nome": "Ordenação customizada (key e lambda)",
+        "resumo": "Ordenar listas de dicionários ou tuplas por critérios múltiplos usando `sorted(..., key=...)`.",
+        "explicacao": (
+            "Em entrevistas e APIs, raramente ordenamos só números soltos — ordenamos registros por nota, prioridade, data ou nome.\n\n"
+            "A função `sorted(itens, key=lambda x: ...)` devolve uma **nova lista ordenada** sem mutar a original, usando a tupla retornada por `key` como critério principal e de desempate:\n"
+            "- Exemplo: ordenar por maior nota e, em empate, por ordem alfabética do nome:\n"
+            "  `sorted(alunos, key=lambda a: (-a['nota'], a['nome']))`."
+        ),
+        "exemplo": (
+            "tarefas = [('Enviar relatório', 2), ('Corrigir bug', 1), ('Atualizar doc', 1)]\n"
+            "ordenadas = sorted(tarefas, key=lambda t: (t[1], t[0]))\n"
+            "for nome, prio in ordenadas:\n"
+            "    print(prio, nome)\n"
+        ),
+        "erros_comuns": [
+            "Usar `lista.sort()` esperando retorno — `.sort()` modifica no lugar e devolve `None`!",
+            "Esquecer o critério de desempate quando dois itens têm o mesmo valor principal.",
+        ],
+        "dica_de_ouro": "Negar valores numéricos na tupla da `key` (`-score, nome`) permite misturar ordem decrescente e crescente no mesmo `sorted()`.",
+    },
+    "excecoes": {
+        "nome": "Programação defensiva e exceções",
+        "resumo": "Usar `try/except` específico e validações de contrato para lidar com dados sujos sem derrubar o sistema.",
+        "explicacao": (
+            "Em automações e APIs reais, dados vêm faltando, com tipo trocado ou `None`. **Programação defensiva** significa "
+            "tratar falhas previsíveis com calma e sem engolir bugs inesperados.\n\n"
+            "Boas práticas:\n"
+            "- Capture exceções **específicas** (`ValueError`, `ZeroDivisionError`, `KeyError`), nunca `except:` vazio.\n"
+            "- Valide casos de borda logo no início da função (**guard clauses**: `if not lista: return 0`).\n"
+            "- Só use `try/except` ao redor da linha que realmente pode lançar aquela exceção."
+        ),
+        "exemplo": (
+            "def converter_int(valor, padrao=0):\n"
+            "    try:\n"
+            "        return int(valor)\n"
+            "    except (ValueError, TypeError):\n"
+            "        return padrao\n"
+            "\n"
+            "print(converter_int('42'), converter_int('abc'), converter_int(None))\n"
+        ),
+        "erros_comuns": [
+            "Usar `except:` nu — esconde erros de digitação (`NameError`) e dificulta encontrar bugs reais.",
+            "Colocar 30 linhas dentro de um único `try:` e não saber qual linha falhou.",
+        ],
+        "dica_de_ouro": "Trate entradas inválidas logo na porta da função (guard clauses) e mantenha o miolo do algoritmo limpo.",
+    },
+    "dois_ponteiros": {
+        "nome": "Padrão Dois Ponteiros (Two Pointers)",
+        "resumo": "Percorrer uma sequência com dois índices simultâneos para evitar laços duplos O(n²).",
+        "explicacao": (
+            "O padrão **Dois Ponteiros** mantém dois índices (`esq` e `dir`, ou `lento` e `rapido`) movendo-se sobre uma lista ou string em tempo linear `O(n)`.\n\n"
+            "Quando reconhecer esse padrão numa entrevista:\n"
+            "- Checar palíndromos ou inverter sequências (`esq = 0`, `dir = len(s) - 1`).\n"
+            "- Encontrar par que soma `alvo` em lista **já ordenada** (se soma < alvo, `esq += 1`; se soma > alvo, `dir -= 1`).\n"
+            "- Mesclar duas listas ordenadas ou compactar elementos sem criar cópias extras."
+        ),
+        "exemplo": (
+            "nums = [1, 3, 5, 8, 12]\n"
+            "alvo = 13\n"
+            "esq, dir_ = 0, len(nums) - 1\n"
+            "while esq < dir_:\n"
+            "    s = nums[esq] + nums[dir_]\n"
+            "    if s == alvo:\n"
+            "        print(nums[esq], nums[dir_])\n"
+            "        break\n"
+            "    elif s < alvo:\n"
+            "        esq += 1\n"
+            "    else:\n"
+            "        dir_ -= 1\n"
+        ),
+        "erros_comuns": [
+            "Usar `while esq <= dir_` quando precisa de dois elementos distintos (pode somar o mesmo elemento consigo mesmo).",
+            "Aplicar soma com dois ponteiros em lista que **não está ordenada**.",
+        ],
+        "dica_de_ouro": "Se o problema fala em lista ordenada, pares ou extremidades convergindo, pense em Dois Ponteiros imediatamente.",
+    },
+    "janela_deslizante": {
+        "nome": "Janela Deslizante (Sliding Window)",
+        "resumo": "Manter um subtrecho contíguo atualizando apenas quem entra e quem sai em O(n).",
+        "explicacao": (
+            "Em vez de recalcular a soma ou a contagem de cada sublista do zero (`O(n * k)`), a **Janela Deslizante** "
+            "reaproveita o cálculo anterior: quando a janela avança 1 posição para a direita, **soma o elemento que entrou** e **subtrai o que saiu**.\n\n"
+            "Serve tanto para **janela fixa** (ex.: maior soma de `k` dias seguidos) quanto para **janela variável** "
+            "(ex.: maior substring sem caracteres repetidos)."
+        ),
+        "exemplo": (
+            "nums = [2, 1, 5, 1, 3, 2]\n"
+            "k = 3\n"
+            "soma = sum(nums[:k])\n"
+            "melhor = soma\n"
+            "for i in range(k, len(nums)):\n"
+            "    soma += nums[i] - nums[i - k]\n"
+            "    if soma > melhor:\n"
+            "        melhor = soma\n"
+            "print(melhor)\n"
+        ),
+        "erros_comuns": [
+            "Fazer `sum(nums[i:i+k])` dentro do `for` — parece simples, mas vira `O(n * k)` lento.",
+            "Esquecer de verificar se `len(nums) < k` antes de inicializar a primeira janela.",
+        ],
+        "dica_de_ouro": "Sempre que o enunciado pedir 'sublista contígua', 'dias seguidos' ou 'substring', teste a ideia de Janela Deslizante.",
+    },
+    "pilha_fila": {
+        "nome": "Pilhas (LIFO) e Filas (FIFO)",
+        "resumo": "Estruturas lineares essenciais para parênteses balanceados, histórico, desfazer e filas de tarefas.",
+        "explicacao": (
+            "- **Pilha (LIFO — Último a entrar, primeiro a sair):** use uma `list` com `.append()` e `.pop()` no final (`O(1)`). "
+            "Clássico de entrevista: validar parênteses/chaves `()[]{}` ou avaliar expressões.\n"
+            "- **Fila (FIFO — Primeiro a entrar, primeiro a sair):** use `collections.deque` com `.append()` e `.popleft()` (`O(1)`), "
+            "pois `lista.pop(0)` desloca todos os itens e custa `O(n)`."
+        ),
+        "exemplo": (
+            "from collections import deque\n"
+            "fila = deque(['job1', 'job2'])\n"
+            "fila.append('job3')\n"
+            "while fila:\n"
+            "    print('Processando:', fila.popleft())\n"
+        ),
+        "erros_comuns": [
+            "Dar `.pop()` numa pilha vazia sem checar `if not pilha:` (gera `IndexError`).",
+            "Esquecer de checar no fim se a pilha terminou vazia (ex.: `'((('` sobra itens abertos).",
+        ],
+        "dica_de_ouro": "Viu aninhamento (`()[]{}`, tags HTML, desfazer ações)? É pilha. Viu ordem de chegada ou busca em largura? É `deque`.",
+    },
+    "busca_binaria": {
+        "nome": "Busca Binária O(log n)",
+        "resumo": "Descartar metade do espaço de busca a cada passo em sequências ordenadas.",
+        "explicacao": (
+            "Se uma lista está **ordenada**, você não precisa olhar um por um (`O(n)`): olhe o elemento do meio (`meio = (esq + dir) // 2`). "
+            "Se o alvo for menor, descarte toda a metade direita; se for maior, descarte a metade esquerda.\n\n"
+            "Em 1.000.000 de elementos, a busca linear faz até 1 milhão de comparações; a busca binária faz no máximo **20**!"
+        ),
+        "exemplo": (
+            "def buscar(nums, alvo):\n"
+            "    esq, dir_ = 0, len(nums) - 1\n"
+            "    while esq <= dir_:\n"
+            "        meio = (esq + dir_) // 2\n"
+            "        if nums[meio] == alvo:\n"
+            "            return meio\n"
+            "        elif nums[meio] < alvo:\n"
+            "            esq = meio + 1\n"
+            "        else:\n"
+            "            dir_ = meio - 1\n"
+            "    return -1\n"
+            "\n"
+            "print(buscar([2, 5, 8, 12, 20], 12))\n"
+        ),
+        "erros_comuns": [
+            "Usar `while esq < dir_` em vez de `<=` e perder o caso de lista com 1 elemento.",
+            "Atualizar `esq = meio` ou `dir_ = meio` sem `+ 1` / `- 1`, causando loop infinito.",
+        ],
+        "dica_de_ouro": "Desenhe sempre o invariante: 'se o alvo existir, ele está dentro de `[esq, dir_]`'. Quando `esq > dir_`, o intervalo ficou vazio.",
+    },
+    "recursao": {
+        "nome": "Recursão em estruturas aninhadas",
+        "resumo": "Funções que chamam a si mesmas para resolver problemas divididos em subproblemas menores (como JSON e árvores).",
+        "explicacao": (
+            "Toda função recursiva tem obrigatoriamente duas partes:\n"
+            "1. **Caso base:** condição simples que retorna direto sem chamar a si mesma (evita `RecursionError`).\n"
+            "2. **Passo recursivo:** reduz o problema para uma versão menor e combina o resultado.\n\n"
+            "Em IA e Automação, recursão é indispensável para percorrer **JSONs aninhados**, pastas, árvores de decisão e menus com profundidade arbitrária."
+        ),
+        "exemplo": (
+            "def somar_aninhado(item):\n"
+            "    if isinstance(item, int):\n"
+            "        return item\n"
+            "    return sum(somar_aninhado(sub) for sub in item)\n"
+            "\n"
+            "print(somar_aninhado([1, [2, [3, 4]], 5]))\n"
+        ),
+        "erros_comuns": [
+            "Esquecer o caso base ou chamar a recursão com o mesmo tamanho de entrada (estoura a pilha com `RecursionError`).",
+            "Esquecer o `return` antes da chamada recursiva.",
+        ],
+        "dica_de_ouro": "Antes de escrever o passo recursivo, escreva primeiro a linha do caso base — ela é o freio de mão da função.",
+    },
+    "complexidade": {
+        "nome": "Complexidade de Tempo e Espaço (Big-O)",
+        "resumo": "Avaliar como o custo do algoritmo cresce conforme o volume de dados N aumenta.",
+        "explicacao": (
+            "Em entrevistas técnicas, fazer funcionar é só metade da nota; a outra metade é **escalar**.\n\n"
+            "Ordens mais importantes (da mais rápida para a mais lenta):\n"
+            "- **`O(1)` (Constante):** acesso por índice `lista[i]` ou chave `d[k]`.\n"
+            "- **`O(log n)` (Logarítmica):** busca binária.\n"
+            "- **`O(n)` (Linear):** uma passada pela lista.\n"
+            "- **`O(n log n)`:** `sorted()`.\n"
+            "- **`O(n²)` (Quadrática):** laço dentro de laço (ou `x in lista` dentro de um `for`). Em 10.000 itens, `O(n)` faz 10 mil operações e `O(n²)` faz 100 milhões!"
+        ),
+        "exemplo": (
+            "# Trocar O(n²) por O(n) usando set\n"
+            "def tem_duplicata(nums):\n"
+            "    vistos = set()\n"
+            "    for x in nums:\n"
+            "        if x in vistos:\n"
+            "            return True\n"
+            "        vistos.add(x)\n"
+            "    return False\n"
+            "\n"
+            "print(tem_duplicata([4, 1, 9, 1]))\n"
+        ),
+        "erros_comuns": [
+            "Achar que `if x in outra_lista:` dentro de um `for` é `O(n)` — na verdade `in` numa `list` percorre a lista toda, virando `O(n²)`!",
+            "Ignorar o custo de `.count()` ou `.pop(0)` dentro de laços.",
+        ],
+        "dica_de_ouro": "Trocar um pouco de memória (`set` ou `dict`) para derrubar tempo de `O(n²)` para `O(n)` é o truque nº 1 das entrevistas.",
+    },
+    "json_apis": {
+        "nome": "JSON profundo, Webhooks e APIs",
+        "resumo": "Ler, validar, achatar e cruzar payloads JSON reais cheios de listas e chaves opcionais.",
+        "explicacao": (
+            "Quase toda automação (WhatsApp, CRM, pagamentos, OpenAI, n8n) troca dados em **JSON**, que em Python vira "
+            "uma combinação de `dict`, `list`, `str`, `int`, `float`, `bool` e `None`.\n\n"
+            "Na vida real, payloads vêm incompletos: uma chave pode não existir ou valer `None`. "
+            "Use leitura defensiva com `.get()`, `isinstance()` e funções auxiliares para extrair caminhos profundos sem derrubar o fluxo."
+        ),
+        "exemplo": (
+            "payload = {'choices': [{'message': {'content': 'Ola!'}}]}\n"
+            "choices = payload.get('choices') or []\n"
+            "texto = choices[0].get('message', {}).get('content', '') if choices else ''\n"
+            "print(texto)\n"
+        ),
+        "erros_comuns": [
+            "Fazer `d.get('usuario', {})` quando `'usuario'` existe mas vale `None` — `.get()` retorna `None`, e `.get('nome')` depois gera `AttributeError`! Use `(d.get('usuario') or {})`.",
+            "Acessar `lista[0]` sem verificar se a lista não está vazia.",
+        ],
+        "dica_de_ouro": "Com payloads externos, `(d.get('chave') or {})` protege tanto contra chave ausente quanto contra valor `None`.",
+    },
+    "pipelines_llm": {
+        "nome": "Pipelines de Texto e Dados para LLMs",
+        "resumo": "Chunking com sobreposição (RAG), extração segura de JSON de texto de IA e controle de orçamento de tokens.",
+        "explicacao": (
+            "Construir produtos com IA exige muita lógica pura em Python antes e depois de chamar o modelo:\n"
+            "- **Chunking com overlap:** dividir documentos longos em pedaços de tamanho `N` com sobreposição `K` para não cortar contexto no meio.\n"
+            "- **Parsing resiliente:** LLMs frequentemente devolvem texto + bloco ```json ... ```; seu parser precisa extrair e validar o JSON com segurança.\n"
+            "- **Orçamento de contexto:** manter apenas as mensagens mais recentes que cabem no limite de tokens preservando a mensagem de sistema."
+        ),
+        "exemplo": (
+            "def fatiar_palavras(texto, tamanho, overlap):\n"
+            "    palavras = texto.split()\n"
+            "    passo = max(1, tamanho - overlap)\n"
+            "    return [' '.join(palavras[i:i+tamanho]) for i in range(0, len(palavras), passo)]\n"
+            "\n"
+            "print(fatiar_palavras('um dois tres quatro cinco', 3, 1))\n"
+        ),
+        "erros_comuns": [
+            "Permitir `overlap >= tamanho` num laço `while`, causando `passo <= 0` e loop infinito.",
+            "Usar `json.loads()` direto na resposta bruta da IA sem remover cercas ```json ou texto ao redor.",
+        ],
+        "dica_de_ouro": "A qualidade de um sistema de IA depende mais da limpeza do pipeline de dados em Python do que do prompt isolado.",
+    },
+    "maquina_estados": {
+        "nome": "Lógica de Automação e Máquinas de Estado",
+        "resumo": "Modelar fluxos de negócio, idempotência, rate limiting e filas sem criar if/else incontrolável.",
+        "explicacao": (
+            "Automações profissionais precisam ser **previsíveis e seguras** mesmo quando webhooks chegam repetidos ou fora de ordem:\n"
+            "- **Idempotência:** registrar IDs já processados num `set` para nunca cobrar ou enviar mensagem duas vezes.\n"
+            "- **Máquina de estados:** mapear transições permitidas num dicionário `{estado_atual: {evento: proximo_estado}}` em vez de dezenas de `if` aninhados.\n"
+            "- **Rate limit e retry:** controlar quantos eventos cabem numa janela de tempo e calcular atrasos com backoff exponencial."
+        ),
+        "exemplo": (
+            "TRANSICOES = {\n"
+            "    'novo': {'qualificar': 'qualificado', 'descartar': 'perdido'},\n"
+            "    'qualificado': {'agendar': 'agendado', 'descartar': 'perdido'},\n"
+            "}\n"
+            "estado = 'novo'\n"
+            "for ev in ['qualificar', 'agendar']:\n"
+            "    estado = TRANSICOES.get(estado, {}).get(ev, estado)\n"
+            "print(estado)\n"
+        ),
+        "erros_comuns": [
+            "Permitir transições ilegais (ex.: lead 'concluido' voltar para 'novo') por falta de tabela de transições.",
+            "Não registrar o `event_id` antes/depois de processar, gerando ações duplicadas em retentativas.",
+        ],
+        "dica_de_ouro": "Se um fluxo de automação tem mais de 3 estados e eventos, modele como tabela de transições em dicionário — fica limpo e auditável.",
+    },
+    "auditoria_ia": {
+        "nome": "Auditoria de Código Gerado por IA",
+        "resumo": "Identificar bugs silenciosos, vazamentos de estado e falhas de borda que LLMs frequentemente introduzem.",
+        "explicacao": (
+            "Em 2027, escrever código rápido com IA é fácil; o que diferencia um engenheiro de alto valor é **auditar e provar** "
+            "que o código não vai falhar em produção.\n\n"
+            "Bugs mais comuns gerados por IA em Python:\n"
+            "- Argumento padrão mutável (`def adicionar(x, itens=[]):`).\n"
+            "- Mutar uma lista enquanto itera sobre ela (`for x in lista: lista.remove(x)`), pulando elementos.\n"
+            "- Fronteira errada (`>` em vez de `>=`, ou janela `[a, b)` vs `[a, b]`).\n"
+            "- Supor que lista não vem vazia ou chave de JSON sempre existe.\n"
+            "- Solução `O(n²)` disfarçada de código limpo."
+        ),
+        "exemplo": (
+            "# Bug clássico de IA: mutar lista durante o for pula itens!\n"
+            "nums = [2, 4, 5, 6]\n"
+            "# Forma segura: construir nova lista filtrada\n"
+            "impares = [x for x in nums if x % 2 != 0]\n"
+            "print(impares)\n"
+        ),
+        "erros_comuns": [
+            "Confiar no código da IA só porque passou no 1º exemplo feliz sem testar bordas.",
+            "Não conferir se uma função alterou a lista/dicionário original do chamador por acidente.",
+        ],
+        "dica_de_ouro": "Nunca aceite código (seu ou da IA) sem tentar quebrá-lo com 3 entradas hostis: vazio, extremo e duplicado.",
+    },
 }

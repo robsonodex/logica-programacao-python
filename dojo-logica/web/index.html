@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dojo de Lógica — Prática Diária de Python</title>
+  <title>Dojo de Lógica — Python, Entrevistas e IA</title>
   <link rel="stylesheet" href="/estilo.css" />
 </head>
 <body>
@@ -13,20 +13,21 @@
         <span class="marca-icone">🥋</span>
         <div>
           <h1>Dojo de Lógica</h1>
-          <span class="marca-sub">Python do Zero ao Domínio Prático</span>
+          <span class="marca-sub">Python · Entrevistas · IA &amp; Automação</span>
         </div>
       </div>
     </div>
 
     <nav class="abas" aria-label="Navegação principal">
-      <button class="aba ativa" data-aba="treino">🎯 Treino do Dia</button>
-      <button class="aba" data-aba="trilha">🗺️ Trilha &amp; Conceitos</button>
-      <button class="aba" data-aba="laboratorio">🔬 Laboratório</button>
-      <button class="aba" data-aba="evolucao">📊 Evolução</button>
+      <button class="aba ativa" data-aba="treino" type="button">Treino do Dia</button>
+      <button class="aba" data-aba="trilha" type="button">Trilha &amp; Conceitos</button>
+      <button class="aba" data-aba="entrevista" type="button">Entrevista</button>
+      <button class="aba" data-aba="laboratorio" type="button">Laboratório</button>
+      <button class="aba" data-aba="evolucao" type="button">Evolução</button>
     </nav>
 
     <div class="topo-dir">
-      <button class="pilula clicavel" id="pill-estagio" title="Clique para ver a trilha de estágios">
+      <button class="pilula clicavel" id="pill-estagio" type="button" title="Clique para ver a trilha de estágios">
         <span id="hdr-estagio-icone">📦</span>
         <span id="hdr-estagio-txt">Estágio 1</span>
       </button>
@@ -41,9 +42,12 @@
         <span class="xp-num" id="hdr-xp">0 XP</span>
       </div>
       <div class="pilula pilula-meta" title="Questões resolvidas no plano atual">
-        <span>🎯</span>
         <span id="hdr-hoje">0/20</span>
       </div>
+      <button class="pilula clicavel pilula-conta" id="btn-conta-nuvem" type="button" title="Login e sincronização na nuvem">
+        <span class="status-dot" id="hdr-nuvem-dot" aria-hidden="true"></span>
+        <span id="hdr-nuvem-txt">Conta</span>
+      </button>
     </div>
   </header>
 
@@ -68,13 +72,13 @@
             <span>Treino:</span>
             <select id="seletor-conjunto"></select>
           </label>
-          <button class="btn btn-sec btn-sm" id="btn-treino-extra" title="Gerar mais 20 questões novas para praticar hoje">
+          <button class="btn btn-sec btn-sm" id="btn-treino-extra" type="button" title="Gerar mais 20 questões novas para praticar hoje">
             +20 Questões Extras
           </button>
         </div>
         <div class="sessao-status">
           <span class="badge-info" id="info-progresso-dia">0 de 20 resolvidas</span>
-          <span class="badge-revisao" id="info-revisoes" title="Questões agendadas para revisão espaçada">🔄 0 revisões</span>
+          <span class="badge-revisao" id="info-revisoes" title="Questões agendadas para revisão espaçada">0 revisões</span>
         </div>
       </div>
 
@@ -104,7 +108,7 @@
           <h2 class="q-titulo" id="q-titulo">Carregando questão...</h2>
 
           <div class="conceitos-box" id="q-conceitos-box">
-            <div class="conceitos-titulo">📚 Conceitos usados nesta questão (clique para estudar):</div>
+            <div class="conceitos-titulo">Conceitos usados nesta questão (clique para estudar):</div>
             <div class="conceitos-chips" id="q-conceitos-chips"></div>
           </div>
 
@@ -112,7 +116,7 @@
 
           <div class="q-trecho-prever hidden" id="q-trecho-prever">
             <div class="bloco-header">
-              <span>🔍 Leia e faça o teste de mesa do código abaixo:</span>
+              <span id="prever-bloco-titulo">Leia e faça o teste de mesa do código abaixo:</span>
             </div>
             <pre class="codigo-numerado" id="prever-codigo-linhas"></pre>
             <div class="prever-entrada hidden" id="prever-entrada-box">
@@ -124,26 +128,56 @@
           <div class="q-exemplos" id="q-exemplos"></div>
 
           <div class="q-apoio-acoes">
-            <button class="btn btn-sec btn-sm" id="btn-pedir-dica">💡 Pedir dica (0/2)</button>
-            <button class="btn btn-sec btn-sm" id="btn-ver-solucao">🔓 Ver gabarito comentado</button>
+            <button class="btn btn-sec btn-sm" id="btn-pedir-dica" type="button">Pedir dica (0/2)</button>
+            <button class="btn btn-sec btn-sm" id="btn-ver-solucao" type="button">Ver gabarito comentado</button>
           </div>
 
           <div class="area-dicas hidden" id="area-dicas"></div>
           <div class="area-gabarito hidden" id="area-gabarito"></div>
         </div>
 
-        <!-- Coluna direita: Editor / Resposta / Resultados -->
+        <!-- Coluna direita: Pensar Primeiro + Editor / Prever / Quebrar + Resultados -->
         <div class="col-pratica">
+          <div class="card card-pensar" id="box-pensar-primeiro">
+            <div class="pensar-topo">
+              <div>
+                <strong>Pensar Antes de Codar (Protocolo de Entrevista)</strong>
+                <span class="badge badge-bonus">+4 XP ao planejar</span>
+              </div>
+              <button class="btn btn-ghost btn-xs" id="btn-toggle-pensar" type="button">Expandir</button>
+            </div>
+            <div class="pensar-corpo hidden" id="pensar-corpo">
+              <div class="pensar-grid">
+                <label class="campo-form">
+                  <span>1. Contrato (o que entra e o que sai?)</span>
+                  <input type="text" id="pensar-contrato" placeholder="Ex.: entra lista de ints, sai int com maior soma" />
+                </label>
+                <label class="campo-form">
+                  <span>2. Casos de borda (o que pode quebrar?)</span>
+                  <input type="text" id="pensar-edges" placeholder="Ex.: lista vazia, negativos, 1 item, None, empates" />
+                </label>
+              </div>
+              <label class="campo-form">
+                <span>3. Estratégia em português (antes de digitar Python)</span>
+                <textarea id="pensar-plano" rows="2" placeholder="Descreva em 2 ou 3 passos qual estrutura e algoritmo vai usar..."></textarea>
+              </label>
+              <div class="pensar-acoes">
+                <button class="btn btn-ghost btn-xs" id="btn-limpar-pensar" type="button">Limpar</button>
+                <button class="btn btn-sec btn-xs" id="btn-salvar-pensar" type="button">Salvar plano</button>
+              </div>
+            </div>
+          </div>
+
           <div class="card card-editor" id="box-editor-codigo">
             <div class="editor-barra">
               <div class="editor-barra-esq">
-                <span class="arquivo-nome">🐍 seu_codigo.py</span>
+                <span class="arquivo-nome">seu_codigo.py</span>
                 <span class="atalhos-dica">Tab = 4 espaços · Ctrl+Enter = Executar · Ctrl+Shift+Enter = Verificar</span>
               </div>
               <div class="editor-barra-dir">
                 <span class="status-rascunho" id="status-rascunho"></span>
-                <button class="btn btn-ghost btn-xs" id="btn-restaurar" title="Voltar ao código inicial da questão">
-                  ↺ Restaurar
+                <button class="btn btn-ghost btn-xs" id="btn-restaurar" type="button" title="Voltar ao código inicial da questão">
+                  Restaurar
                 </button>
               </div>
             </div>
@@ -156,24 +190,24 @@
 
             <div class="entrada-box">
               <label for="entrada-teste">
-                <span>⌨️ Entrada de teste para <code>input()</code> <small>(um valor por linha, usado no Executar e Rastrear)</small></span>
+                <span>Entrada de teste para <code>input()</code> <small>(um valor por linha, usado no Executar e Rastrear)</small></span>
               </label>
               <textarea id="entrada-teste" rows="2" spellcheck="false"
                 placeholder="Se o programa usar input(), digite os valores aqui (um por linha)..."></textarea>
             </div>
 
             <div class="acoes-pratica">
-              <button class="btn btn-sec" id="btn-executar">▶️ Executar</button>
-              <button class="btn btn-sec" id="btn-rastrear-questao" title="Abrir este código no Laboratório de Teste de Mesa">
-                🔬 Rastrear passo a passo
+              <button class="btn btn-sec" id="btn-executar" type="button">Executar</button>
+              <button class="btn btn-sec" id="btn-rastrear-questao" type="button" title="Abrir este código no Laboratório de Teste de Mesa">
+                Rastrear passo a passo
               </button>
-              <button class="btn btn-primario" id="btn-verificar">✅ Verificar resposta</button>
+              <button class="btn btn-primario" id="btn-verificar" type="button">Verificar resposta</button>
             </div>
           </div>
 
           <div class="card card-prever hidden" id="box-resposta-prever">
             <div class="editor-barra">
-              <span class="arquivo-nome">📝 Sua previsão da saída exata</span>
+              <span class="arquivo-nome">Sua previsão da saída exata</span>
             </div>
             <p class="prever-instrucao">
               Digite exatamente o que o programa acima imprimirá na tela (respeitando quebras de linha, números e letras):
@@ -181,12 +215,37 @@
             <textarea id="resposta-prever" rows="6" spellcheck="false"
               placeholder="Escreva aqui linha por linha a saída esperada..."></textarea>
             <div class="acoes-pratica">
-              <button class="btn btn-sec hidden" id="btn-rastrear-prever">🔬 Conferir no Laboratório</button>
-              <button class="btn btn-primario" id="btn-verificar-prever">✅ Verificar previsão</button>
+              <button class="btn btn-sec hidden" id="btn-rastrear-prever" type="button">Conferir no Laboratório</button>
+              <button class="btn btn-primario" id="btn-verificar-prever" type="button">Verificar previsão</button>
+            </div>
+          </div>
+
+          <div class="card card-quebrar hidden" id="box-resposta-quebrar">
+            <div class="editor-barra">
+              <span class="arquivo-nome">Caçador de Edge Cases — Entrada de ataque</span>
+            </div>
+            <p class="prever-instrucao" id="quebrar-instrucao">
+              Digite uma entrada válida segundo o enunciado que faça o código bugado ao lado falhar ou retornar o resultado errado:
+            </p>
+            <textarea id="resposta-quebrar" rows="3" spellcheck="false"
+              placeholder="Ex.: [-5, -2, -9]"></textarea>
+            <div class="acoes-pratica">
+              <button class="btn btn-primario" id="btn-verificar-quebrar" type="button">Testar entrada e quebrar código</button>
             </div>
           </div>
 
           <div class="card area-resultado hidden" id="area-resultado"></div>
+
+          <div class="card card-feynman hidden" id="box-feynman">
+            <div class="feynman-topo">
+              <strong>Fechamento Feynman — Consolide no seu Caderno Mental</strong>
+              <span class="texto-suave">Se um entrevistador perguntasse qual foi a sacada lógica desta questão em 1 frase, o que você diria?</span>
+            </div>
+            <div class="feynman-row">
+              <input type="text" id="input-feynman" placeholder="Ex.: Usar set reduz busca de duplicatas de O(n²) para O(n)..." />
+              <button class="btn btn-sec btn-sm" id="btn-salvar-feynman" type="button">Salvar no Caderno</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -195,41 +254,160 @@
     <section id="aba-trilha" class="painel-aba">
       <div class="secao-cabecalho">
         <div>
-          <h2>🗺️ Trilha de Aprendizagem — Nível Básico (13 Estágios)</h2>
-          <p>Você começa do zero e avança gradualmente. Resolva 20 questões de um estágio para desbloquear o próximo, ou navegue livremente pelos estágios já liberados.</p>
+          <h2>Trilha Completa — 22 Estágios (Fundamentos, Entrevista e IA 2027)</h2>
+          <p>Resolva 20 questões por estágio para desbloquear progressivamente ou use o Modo Autônomo para liberar trilhas avançadas imediatamente.</p>
+        </div>
+        <div class="trilha-acoes-rapidas">
+          <button class="btn btn-sec btn-sm" id="btn-liberar-entrevista" type="button">Liberar Entrevista (14-18)</button>
+          <button class="btn btn-sec btn-sm" id="btn-liberar-ia" type="button">Liberar IA &amp; Automação (19-22)</button>
+          <button class="btn btn-primario btn-sm" id="btn-liberar-todos" type="button">Modo Autônomo (Todos os 22)</button>
         </div>
       </div>
-      <div class="grid-estagios" id="grid-estagios"></div>
+
+      <div id="trilhas-container"></div>
 
       <div class="secao-cabecalho mt-lg">
         <div>
-          <h2>📚 Biblioteca de Mini-Lições (22 Conceitos Fundamentais)</h2>
-          <p>Clique em qualquer conceito para abrir a explicação completa, exemplos executáveis e erros comuns.</p>
+          <h2>Biblioteca de Mini-Lições (38 Conceitos Fundamentais e Avançados)</h2>
+          <p>Pesquise ou clique em qualquer conceito para abrir a explicação completa, exemplo executável e erros comuns.</p>
+        </div>
+        <div class="busca-wrap">
+          <input type="search" id="filtro-conceitos" class="input-busca" placeholder="Filtrar conceitos (ex.: Big-O, JSON, pilha)..." />
         </div>
       </div>
       <div class="grid-conceitos" id="grid-conceitos"></div>
     </section>
 
-    <!-- ==================== ABA 3: LABORATÓRIO (TESTE DE MESA) ==================== -->
+    <!-- ==================== ABA 3: SIMULADO DE ENTREVISTA ==================== -->
+    <section id="aba-entrevista" class="painel-aba">
+      <div id="sim-config">
+        <div class="secao-cabecalho">
+          <div>
+            <h2>Simulador de Entrevista Técnica</h2>
+            <p>3 problemas progressivos sob cronômetro, sem botão de dica, com casos de borda ocultos e avaliação automática em 4 pilares (Correção, Edge Cases, Qualidade AST e Eficiência).</p>
+          </div>
+        </div>
+
+        <div class="card sim-setup-card">
+          <div class="sim-setup-grid">
+            <label class="campo-form">
+              <span>Trilha do simulado</span>
+              <select id="sim-trilha">
+                <option value="entrevista">Nível Entrevista Técnica (Estágios 14 a 18)</option>
+                <option value="ia_automacao">IA, APIs &amp; Automação 2027 (Estágios 19 a 22)</option>
+                <option value="completo">Completo Misto (Estágios 10 a 22)</option>
+                <option value="basico">Fundamentos de Lógica (Estágios 1 a 13)</option>
+              </select>
+            </label>
+            <label class="campo-form">
+              <span>Tempo limite</span>
+              <select id="sim-duracao">
+                <option value="20">20 minutos (Sprint rápida)</option>
+                <option value="30" selected>30 minutos (Entrevista padrão)</option>
+                <option value="45">45 minutos (Entrevista completa)</option>
+              </select>
+            </label>
+          </div>
+          <div class="sim-regras">
+            <span>Regras do simulado:</span>
+            <ul>
+              <li>Apenas 1 caso de exemplo é visível — os casos de borda são validados na entrega final.</li>
+              <li>Preencher o bloco de raciocínio em todos os 3 problemas dá bônus de clareza na nota geral.</li>
+              <li>Não há dicas nem gabarito durante o cronômetro.</li>
+            </ul>
+          </div>
+          <div class="acoes-pratica">
+            <button class="btn btn-primario" id="btn-iniciar-simulado" type="button">Iniciar Simulado Agora</button>
+          </div>
+        </div>
+
+        <div class="card mt-lg">
+          <h3>Histórico de Simulados</h3>
+          <div id="sim-historico" class="sim-historico-lista">
+            <p class="texto-suave">Nenhum simulado concluído ainda. Faça seu primeiro simulado para acompanhar sua evolução rumo às entrevistas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="sim-ativo" class="hidden">
+        <div class="sim-topbar card">
+          <div class="sim-nav-problemas" id="sim-nav-problemas"></div>
+          <div class="sim-topbar-dir">
+            <span class="sim-relogio" id="sim-relogio">30:00</span>
+            <button class="btn btn-primario btn-sm" id="btn-encerrar-simulado" type="button">Encerrar e Avaliar</button>
+          </div>
+        </div>
+
+        <div class="workspace-questao mt-md">
+          <div class="col-enunciado card">
+            <div class="q-meta">
+              <span class="badge" id="sim-q-num">Problema 1/3</span>
+              <span class="badge badge-tipo" id="sim-q-tipo">Escreva a função</span>
+              <span class="badge badge-origem novo" id="sim-q-estagio">Estágio 14</span>
+            </div>
+            <h2 class="q-titulo" id="sim-q-titulo"></h2>
+            <div class="q-enunciado" id="sim-q-enunciado"></div>
+            <div class="q-trecho-prever hidden" id="sim-q-trecho-wrap">
+              <div class="bloco-header"><span>Código sob auditoria:</span></div>
+              <pre class="codigo-numerado" id="sim-q-trecho"></pre>
+            </div>
+            <div class="q-exemplos" id="sim-q-exemplos"></div>
+          </div>
+
+          <div class="col-pratica">
+            <div class="card">
+              <label class="campo-form">
+                <span>Raciocínio antes de codar (abordagem, complexidade e casos de borda)</span>
+                <textarea id="sim-raciocinio" rows="2" placeholder="Explique em 2 frases sua estratégia e quais casos-limite precisam ser tratados..."></textarea>
+              </label>
+            </div>
+
+            <div class="card card-editor">
+              <div class="editor-barra">
+                <span class="arquivo-nome" id="sim-editor-label">solucao_entrevista.py</span>
+                <span class="atalhos-dica">Sem dicas · Casos ocultos avaliados na entrega</span>
+              </div>
+              <div class="editor-corpo">
+                <pre class="editor-linhas" id="sim-linhas" aria-hidden="true">1</pre>
+                <textarea id="sim-editor" spellcheck="false" autocomplete="off" placeholder="# Escreva sua solução limpa aqui..."></textarea>
+              </div>
+              <div class="entrada-box" id="sim-entrada-wrap">
+                <label for="sim-entrada"><span>Entrada manual para teste rápido (opcional)</span></label>
+                <textarea id="sim-entrada" rows="2" spellcheck="false" placeholder="Opcional..."></textarea>
+              </div>
+              <div class="acoes-pratica">
+                <button class="btn btn-sec btn-sm" id="btn-sim-executar" type="button">Testar execução rápida</button>
+              </div>
+            </div>
+
+            <div class="card area-resultado hidden" id="sim-saida-rapida"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sim-resultado" class="hidden"></div>
+    </section>
+
+    <!-- ==================== ABA 4: LABORATÓRIO (TESTE DE MESA) ==================== -->
     <section id="aba-laboratorio" class="painel-aba">
       <div class="secao-cabecalho">
         <div>
-          <h2>🔬 Laboratório — Teste de Mesa Visual</h2>
+          <h2>Laboratório — Teste de Mesa Visual</h2>
           <p>Veja o Python executando seu código linha por linha, acompanhando cada variável na memória e a saída do <code>print()</code>.</p>
         </div>
         <div class="lab-exemplos">
           <select id="lab-seletor-exemplo">
             <option value="">Carregar exemplo de teste de mesa...</option>
           </select>
-          <button class="btn btn-primario" id="btn-lab-rastrear">🔬 Rastrear passo a passo</button>
+          <button class="btn btn-primario" id="btn-lab-rastrear" type="button">Rastrear passo a passo</button>
         </div>
       </div>
 
       <div class="lab-layout">
         <div class="card lab-col-codigo">
           <div class="editor-barra">
-            <span class="arquivo-nome">🐍 codigo_laboratorio.py</span>
-            <span class="atalhos-dica">Sem input() travado: preencha abaixo se usar input()</span>
+            <span class="arquivo-nome">codigo_laboratorio.py</span>
+            <span class="atalhos-dica">Preencha abaixo se usar input()</span>
           </div>
           <div class="editor-corpo lab-editor-corpo">
             <pre class="editor-linhas" id="lab-linhas">1</pre>
@@ -240,7 +418,7 @@ for i in range(1, 5):
 print("Total:", soma)</textarea>
           </div>
           <div class="entrada-box">
-            <label for="lab-entrada"><span>⌨️ Entrada (input, um por linha)</span></label>
+            <label for="lab-entrada"><span>Entrada (input, um por linha)</span></label>
             <textarea id="lab-entrada" rows="2" spellcheck="false" placeholder="Opcional..."></textarea>
           </div>
         </div>
@@ -248,11 +426,11 @@ print("Total:", soma)</textarea>
         <div class="card lab-col-visual">
           <div class="lab-controles">
             <div class="lab-botoes">
-              <button class="btn btn-sec btn-sm" id="lab-inicio" title="Primeiro passo">⏮</button>
-              <button class="btn btn-sec btn-sm" id="lab-ant" title="Passo anterior">◀ Anterior</button>
-              <button class="btn btn-primario btn-sm" id="lab-prox" title="Próximo passo">Próximo ▶</button>
-              <button class="btn btn-sec btn-sm" id="lab-fim" title="Último passo">⏭</button>
-              <button class="btn btn-sec btn-sm" id="lab-auto" title="Reproduzir automaticamente">⏯ Auto</button>
+              <button class="btn btn-sec btn-sm" id="lab-inicio" type="button" title="Primeiro passo">⏮</button>
+              <button class="btn btn-sec btn-sm" id="lab-ant" type="button" title="Passo anterior">◀ Anterior</button>
+              <button class="btn btn-primario btn-sm" id="lab-prox" type="button" title="Próximo passo">Próximo ▶</button>
+              <button class="btn btn-sec btn-sm" id="lab-fim" type="button" title="Último passo">⏭</button>
+              <button class="btn btn-sec btn-sm" id="lab-auto" type="button" title="Reproduzir automaticamente">⏯ Auto</button>
             </div>
             <div class="lab-slider-wrap">
               <input type="range" id="lab-slider" min="0" max="0" value="0" />
@@ -264,13 +442,13 @@ print("Total:", soma)</textarea>
 
           <div class="lab-paineis">
             <div class="lab-subcard">
-              <h4>📍 Linha em execução</h4>
+              <h4>Linha em execução</h4>
               <pre class="codigo-numerado lab-codigo-trace" id="lab-codigo-trace"></pre>
             </div>
 
             <div class="lab-subcard">
               <div class="lab-vars-header">
-                <h4>📦 Variáveis na memória</h4>
+                <h4>Variáveis na memória</h4>
                 <span class="badge-escopo" id="lab-escopo">Escopo: principal</span>
               </div>
               <div id="lab-pilha" class="lab-pilha"></div>
@@ -281,7 +459,7 @@ print("Total:", soma)</textarea>
             </div>
 
             <div class="lab-subcard lab-subcard-saida">
-              <h4>🖥️ Saída acumulada (print)</h4>
+              <h4>Saída acumulada (print)</h4>
               <pre id="lab-saida" class="lab-saida">(vazia)</pre>
             </div>
           </div>
@@ -289,42 +467,66 @@ print("Total:", soma)</textarea>
       </div>
     </section>
 
-    <!-- ==================== ABA 4: EVOLUÇÃO & CONQUISTAS ==================== -->
+    <!-- ==================== ABA 5: EVOLUÇÃO, BUGS & CADERNO ==================== -->
     <section id="aba-evolucao" class="painel-aba">
       <div class="kpis-grid" id="evo-kpis"></div>
 
       <div class="evo-duas-colunas">
         <div class="card">
-          <h3>📅 Consistência Diária</h3>
+          <h3>Consistência Diária</h3>
           <p class="texto-suave">Cada quadrado representa um dia de prática (quanto mais verde, mais questões resolvidas).</p>
           <div class="calendario-grid" id="evo-calendario"></div>
         </div>
 
         <div class="card">
-          <h3>🎯 Termômetro por Conceito</h3>
+          <h3>Termômetro por Conceito</h3>
           <p class="texto-suave">Acompanhe sua taxa de acerto em cada conceito para saber exatamente o que reforçar.</p>
           <div class="termometro-lista" id="evo-conceitos"></div>
         </div>
       </div>
 
+      <div class="card mt-lg" id="card-museu-bugs">
+        <div class="backup-header">
+          <div>
+            <h3>Museu dos Meus Bugs (Seus Pontos Cegos)</h3>
+            <p class="texto-suave">Classificação automática dos erros que você mais comete, com antídoto técnico e treino cirúrgico.</p>
+          </div>
+          <button class="btn btn-primario btn-sm" id="btn-treino-bugs" type="button">Gerar Treino Cirúrgico (10 questões)</button>
+        </div>
+        <div id="lista-museu-bugs" class="bugs-grid mt-md"></div>
+      </div>
+
+      <div class="card mt-lg" id="card-caderno-padroes">
+        <div class="backup-header">
+          <div>
+            <h3>Caderno de Padrões Mentais (Feynman)</h3>
+            <p class="texto-suave">Seus resumos lógicos, planos e casos de borda registrados durante a prática.</p>
+          </div>
+          <input type="search" id="filtro-padroes" class="input-busca" placeholder="Buscar no caderno mental..." />
+        </div>
+        <div id="lista-caderno-padroes" class="padroes-lista mt-md"></div>
+      </div>
+
       <div class="card mt-lg" id="card-intermediario"></div>
 
       <div class="card mt-lg">
-        <h3>🏅 Conquistas</h3>
+        <h3>Conquistas</h3>
         <div class="conquistas-grid" id="evo-conquistas"></div>
       </div>
 
       <div class="card mt-lg backup-card" id="card-backup-progresso">
         <div class="backup-header">
           <div>
-            <h3>Backup e portabilidade do progresso</h3>
-            <p class="texto-suave">
-              Exporte seu histórico em arquivo JSON para guardar cópia de segurança ou transferir seu progresso entre o computador local e o site.
+            <h3>Conta na Nuvem (Supabase) e Backup</h3>
+            <p class="texto-suave" id="status-nuvem-detalhe">
+              Salve automaticamente seu progresso na nuvem para continuar no PC ou celular, ou exporte/importe um backup JSON.
             </p>
           </div>
           <div class="backup-acoes">
-            <button class="btn btn-sec btn-sm" id="btn-exportar-progresso" type="button">Exportar progresso (.json)</button>
-            <button class="btn btn-sec btn-sm" id="btn-importar-progresso" type="button">Importar progresso (.json)</button>
+            <button class="btn btn-primario btn-sm" id="btn-abrir-conta-backup" type="button">Entrar / Sincronizar conta</button>
+            <button class="btn btn-sec btn-sm hidden" id="btn-sync-agora" type="button">Sincronizar agora</button>
+            <button class="btn btn-sec btn-sm" id="btn-exportar-progresso" type="button">Exportar (.json)</button>
+            <button class="btn btn-sec btn-sm" id="btn-importar-progresso" type="button">Importar (.json)</button>
             <input type="file" id="input-importar-progresso" accept=".json,application/json" class="hidden" />
           </div>
         </div>
@@ -337,25 +539,25 @@ print("Total:", soma)</textarea>
     <div class="modal-caixa">
       <div class="modal-topo">
         <div>
-          <span class="badge-conceito-tag">📖 Mini-lição</span>
+          <span class="badge-conceito-tag">Mini-lição</span>
           <h2 id="modal-c-titulo">Conceito</h2>
           <p class="modal-resumo" id="modal-c-resumo"></p>
         </div>
-        <button class="btn-fechar" id="modal-c-fechar" aria-label="Fechar">✕</button>
+        <button class="btn-fechar" id="modal-c-fechar" type="button" aria-label="Fechar">✕</button>
       </div>
       <div class="modal-corpo">
         <div class="modal-secao" id="modal-c-explicacao"></div>
 
         <div class="modal-secao">
           <div class="bloco-header">
-            <h4>💻 Exemplo funcionando</h4>
-            <button class="btn btn-sec btn-xs" id="modal-c-testar-lab">🔬 Testar no Laboratório</button>
+            <h4>Exemplo funcionando</h4>
+            <button class="btn btn-sec btn-xs" id="modal-c-testar-lab" type="button">Testar no Laboratório</button>
           </div>
           <pre class="codigo-bloco" id="modal-c-exemplo"></pre>
         </div>
 
         <div class="modal-secao" id="modal-c-erros-wrap">
-          <h4>⚠️ Erros comuns (e como evitar)</h4>
+          <h4>Erros comuns (e como evitar)</h4>
           <ul class="lista-erros" id="modal-c-erros"></ul>
         </div>
 
@@ -364,10 +566,69 @@ print("Total:", soma)</textarea>
     </div>
   </div>
 
+  <!-- ==================== MODAL DE CONTA SUPABASE ==================== -->
+  <div class="modal-fundo hidden" id="modal-conta" role="dialog" aria-modal="true" aria-labelledby="modal-conta-titulo">
+    <div class="modal-caixa modal-conta-caixa">
+      <div class="modal-topo">
+        <div>
+          <span class="badge-conceito-tag">Sincronização em Nuvem</span>
+          <h2 id="modal-conta-titulo">Conta do Dojo</h2>
+          <p class="modal-resumo" id="modal-conta-sub">Entre para sincronizar seu progresso, caderno mental, bugs e simulados no Supabase.</p>
+        </div>
+        <button class="btn-fechar" id="modal-conta-fechar" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-corpo">
+        <div id="conta-nao-configurada" class="aviso-config hidden">
+          <p>A conexão com o Supabase ainda não está configurada neste ambiente. Defina <code>SUPABASE_URL</code> e <code>SUPABASE_PUBLISHABLE_KEY</code> nas variáveis de ambiente da Vercel (ou em <code>.env.local</code>) para ativar o login na nuvem.</p>
+        </div>
+
+        <div id="conta-logada" class="hidden">
+          <div class="conta-resumo-box">
+            <div>
+              <div class="conta-label">Conectado como</div>
+              <strong id="conta-email-atual"></strong>
+            </div>
+            <span class="badge badge-status ok" id="conta-sync-badge">Sincronizado</span>
+          </div>
+          <p class="texto-suave" id="conta-sync-msg"></p>
+          <div class="acoes-pratica">
+            <button class="btn btn-sec" id="btn-conta-sync" type="button">Sincronizar agora</button>
+            <button class="btn btn-perigo" id="btn-conta-sair" type="button">Sair da conta</button>
+          </div>
+        </div>
+
+        <div id="conta-form-wrap">
+          <div class="conta-tabs">
+            <button class="conta-tab ativa" data-modo="entrar" type="button">Entrar</button>
+            <button class="conta-tab" data-modo="cadastrar" type="button">Criar conta</button>
+            <button class="conta-tab" data-modo="recuperar" type="button">Recuperar senha</button>
+          </div>
+          <form id="form-conta" class="conta-form">
+            <label class="campo-form hidden" id="wrap-conta-nome">
+              <span>Seu nome</span>
+              <input type="text" id="conta-nome" autocomplete="name" placeholder="Como quer ser chamado" />
+            </label>
+            <label class="campo-form">
+              <span>E-mail</span>
+              <input type="email" id="conta-email" required autocomplete="email" placeholder="seu@email.com" />
+            </label>
+            <label class="campo-form" id="wrap-conta-senha">
+              <span>Senha (mínimo 6 caracteres)</span>
+              <input type="password" id="conta-senha" minlength="6" autocomplete="current-password" placeholder="Sua senha" />
+            </label>
+            <div id="conta-feedback" class="conta-feedback hidden"></div>
+            <button class="btn btn-primario" id="btn-conta-submit" type="submit">Entrar na conta</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de notificações -->
   <div class="toasts" id="toasts"></div>
 
   <script src="/runtime-config.js"></script>
+  <script src="/supabase-sync.js"></script>
   <script src="/py-bridge.js"></script>
   <script src="/app.js"></script>
 </body>

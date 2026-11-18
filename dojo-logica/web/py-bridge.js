@@ -148,6 +148,7 @@
   }
 
   function timeoutParaRota(path) {
+    if (path === "/api/simulado/avaliar") return 45000;
     if (path === "/api/verificar") return 25000;
     if (path === "/api/executar" || path === "/api/rastrear") return 12000;
     return 10000;

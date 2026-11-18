@@ -1,6 +1,11 @@
 # Dados locais do aluno (não publicar progresso pessoal em repositório público)
 dojo-logica/dados/
 
+# Variáveis de ambiente locais (nunca comitar chaves)
+.env
+.env.local
+.env.*.local
+
 # Cache e artefatos Python
 **/__pycache__/
 *.py[cod]
@@ -13,3 +18,4 @@ dist/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
