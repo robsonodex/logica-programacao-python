@@ -513,10 +513,39 @@ code {
 .acoes-pratica {
   padding: 12px 14px;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--bg-card);
+}
+.acoes-pratica-botoes {
+  display: flex;
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
-  background: var(--bg-card);
+  margin-left: auto;
+}
+.toggle-rigoroso {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  color: var(--texto-sec);
+  cursor: pointer;
+  user-select: none;
+}
+.toggle-rigoroso input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--primario);
+  cursor: pointer;
+}
+mark.diff-char {
+  background: rgba(245, 158, 11, 0.32);
+  color: #fef3c7;
+  border-radius: 3px;
+  padding: 0 1px;
 }
 .card-prever .prever-instrucao { color: var(--texto-sec); font-size: 0.9rem; margin: 12px 0 8px; }
 .card-prever .acoes-pratica { padding: 12px 0 0; }

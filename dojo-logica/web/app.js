@@ -620,16 +620,48 @@
       </div>`;
   }
 
+  function renderDiffLinha(txt, ref) {
+    const a = String(txt || "");
+    const b = String(ref || "");
+    let html = "";
+    let bufDiff = "";
+    const flushDiff = () => {
+      if (bufDiff) {
+        html += `<mark class="diff-char">${escaparHtml(bufDiff)}</mark>`;
+        bufDiff = "";
+      }
+    };
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) {
+        bufDiff += a[i];
+      } else {
+        flushDiff();
+        html += escaparHtml(a[i]);
+      }
+    }
+    flushDiff();
+    return html;
+  }
+
+  function renderDiffBloco(txt, ref) {
+    if (!txt) return "(vazio)";
+    if (!ref) return escaparHtml(txt);
+    const la = String(txt).replace(/\r\n/g, "\n").split("\n");
+    const lb = String(ref).replace(/\r\n/g, "\n").split("\n");
+    return la.map((linha, i) => renderDiffLinha(linha, lb[i] || "")).join("\n");
+  }
+
   async function verificarAtual() {
     const q = state.questao;
     if (!q) return;
     const ehPrever = q.tipo === "prever";
     const ehQuebrar = q.tipo === "quebrar";
+    const rigoroso = Boolean($("#chk-modo-rigoroso")?.checked);
     const payload = ehPrever
-      ? { id: q.id, resposta: $("#resposta-prever").value }
+      ? { id: q.id, resposta: $("#resposta-prever").value, rigoroso }
       : ehQuebrar
-        ? { id: q.id, resposta: $("#resposta-quebrar").value }
-        : { id: q.id, codigo: $("#editor-codigo").value };
+        ? { id: q.id, resposta: $("#resposta-quebrar").value, rigoroso }
+        : { id: q.id, codigo: $("#editor-codigo").value, rigoroso };
 
     const resEl = $("#area-resultado");
     resEl.classList.remove("hidden");
@@ -670,14 +702,15 @@
       }
 
       for (const t of r.resultados) {
-        const ok = t.status === "exato" || t.status === "quase";
+        const ok = t.status === "exato" || t.status === "quase" || t.status === "equivalente";
         const tag = t.quebrar_modo
           ? ok
             ? "Bug exposto!"
             : "Saídas iguais (tente outra borda)"
           : {
               exato: "Exato",
-              quase: "Aceito (atenção a espaços/maiúsculas)",
+              quase: "Aceito (atenção a acentos/grafia)",
+              equivalente: "Aceito pela lógica (formato próprio)",
               diferente: "Saída diferente",
               erro: "Erro na execução",
             }[t.status];
@@ -694,14 +727,19 @@
             <div><strong>Código bugado retornou:</strong><pre>${escaparHtml(t.obtido || "(vazio)")}</pre></div>
             <div><strong>Referência correta:</strong><pre>${escaparHtml(t.esperado || "(vazio)")}</pre></div>
           </div>`;
-        } else if (!ok || t.status === "quase") {
-          const esp =
-            t.esperado !== null && t.esperado !== undefined
-              ? `<pre>${escaparHtml(t.esperado)}</pre>`
-              : `<pre>(tente novamente ou use uma dica)</pre>`;
-          html += `<div class="teste-cols">
-            <div><strong>Sua saída:</strong><pre>${escaparHtml(t.obtido || "(vazio)")}</pre></div>
-            <div><strong>Saída esperada:</strong>${esp}</div>
+        } else if (!ok || t.status === "quase" || t.status === "equivalente") {
+          const notaFlex =
+            t.status === "equivalente"
+              ? `<p class="texto-suave" style="margin:0 0 8px;">Sua lógica acertou o resultado esperado com a sua própria redação. Abaixo está a comparação apenas como referência de formato:</p>`
+              : t.status === "quase"
+                ? `<p class="texto-suave" style="margin:0 0 8px;">Resposta aprovada! Houve apenas diferença leve de grafia/acentuação (destacada abaixo):</p>`
+                : "";
+          const temEsp = t.esperado !== null && t.esperado !== undefined;
+          const obtHtml = temEsp ? renderDiffBloco(t.obtido || "", t.esperado) : escaparHtml(t.obtido || "(vazio)");
+          const espHtml = temEsp ? renderDiffBloco(t.esperado, t.obtido || "") : "(tente novamente ou use uma dica)";
+          html += `${notaFlex}<div class="teste-cols">
+            <div><strong>Sua saída:</strong><pre>${obtHtml}</pre></div>
+            <div><strong>Referência esperada:</strong><pre>${espHtml}</pre></div>
           </div>`;
         }
         html += `</div>`;
@@ -1581,6 +1619,27 @@
     $("#btn-verificar").addEventListener("click", verificarAtual);
     $("#btn-verificar-prever").addEventListener("click", verificarAtual);
     $("#btn-verificar-quebrar").addEventListener("click", verificarAtual);
+
+    const chkRig = $("#chk-modo-rigoroso");
+    if (chkRig) {
+      try {
+        chkRig.checked = window.localStorage.getItem("dojo_modo_rigoroso") === "1";
+      } catch {
+        chkRig.checked = false;
+      }
+      chkRig.addEventListener("change", () => {
+        try {
+          window.localStorage.setItem("dojo_modo_rigoroso", chkRig.checked ? "1" : "0");
+        } catch {
+          // Ignore
+        }
+        toast(
+          chkRig.checked
+            ? "Modo rigoroso ativado: a verificação agora exige saída exata caractere por caractere."
+            : "Modo flexível ativado: a verificação prioriza a lógica e aceita variações leves de grafia/redação."
+        );
+      });
+    }
 
     // Pensar Antes de Codar & Feynman
     $("#btn-toggle-pensar").addEventListener("click", () => {

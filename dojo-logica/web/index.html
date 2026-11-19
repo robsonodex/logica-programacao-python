@@ -197,11 +197,17 @@
             </div>
 
             <div class="acoes-pratica">
-              <button class="btn btn-sec" id="btn-executar" type="button">Executar</button>
-              <button class="btn btn-sec" id="btn-rastrear-questao" type="button" title="Abrir este código no Laboratório de Teste de Mesa">
-                Rastrear passo a passo
-              </button>
-              <button class="btn btn-primario" id="btn-verificar" type="button">Verificar resposta</button>
+              <label class="toggle-rigoroso" title="Desligado = avalia sua lógica e aceita variações de grafia/frase. Ligado = exige saída 100% idêntica caractere por caractere (padrão de entrevista).">
+                <input type="checkbox" id="chk-modo-rigoroso" />
+                <span>Modo rigoroso</span>
+              </label>
+              <div class="acoes-pratica-botoes">
+                <button class="btn btn-sec" id="btn-executar" type="button">Executar</button>
+                <button class="btn btn-sec" id="btn-rastrear-questao" type="button" title="Abrir este código no Laboratório de Teste de Mesa">
+                  Rastrear passo a passo
+                </button>
+                <button class="btn btn-primario" id="btn-verificar" type="button">Verificar resposta</button>
+              </div>
             </div>
           </div>
 

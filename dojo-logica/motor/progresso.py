@@ -538,7 +538,7 @@ def _avaliar_quebrar(q: dict, entrada_aluno: str) -> tuple[bool, list[dict]]:
         quebrou = True
         obtido_txt = f"Erro no código bugado -> {r_bug['erro']['tipo']}: {r_bug['erro']['mensagem']}"
     else:
-        quebrou = executor.comparar(r_bug["saida"], r_ref["saida"]) == "diferente"
+        quebrou = executor.comparar(r_bug["saida"], r_ref["saida"], modo="rigoroso") == "diferente"
         obtido_txt = r_bug["saida"]
 
     return quebrou, [{
@@ -553,7 +553,7 @@ def _avaliar_quebrar(q: dict, entrada_aluno: str) -> tuple[bool, list[dict]]:
     }]
 
 
-def verificar(inst_id: str, codigo: str = "", resposta: str | None = None) -> dict:
+def verificar(inst_id: str, codigo: str = "", resposta: str | None = None, rigoroso: bool = False) -> dict:
     with _trava:
         p = carregar()
         it = _achar_item(p, inst_id)
@@ -561,9 +561,11 @@ def verificar(inst_id: str, codigo: str = "", resposta: str | None = None) -> di
     q = _gerar(it)
     esperados = _esperados(it, q)
 
+    modo_cmp = "rigoroso" if rigoroso else ("padrao" if m.tipo in ("prever", "funcao") else "flexivel")
+
     resultados = []
     if m.tipo == "prever":
-        cmp = executor.comparar(resposta or "", esperados[0])
+        cmp = executor.comparar(resposta or "", esperados[0], modo=modo_cmp)
         resultados.append({"n": 1, "entrada": q["testes"][0]["entrada"], "chamada": "",
                            "obtido": resposta or "", "status": cmp,
                            "esperado": esperados[0] if cmp != "diferente" else None})
@@ -573,12 +575,14 @@ def verificar(inst_id: str, codigo: str = "", resposta: str | None = None) -> di
     else:
         for i, (t, esp) in enumerate(zip(q["testes"], esperados)):
             r = executor.executar(codigo, t["entrada"], t["chamada"], eco=False)
-            cmp = "erro" if r["erro"] else executor.comparar(r["saida"], esp)
+            cmp = "erro" if r["erro"] else executor.comparar(r["saida"], esp, modo=modo_cmp)
             resultados.append({"n": i + 1, "entrada": t["entrada"], "chamada": t["chamada"],
                                "obtido": r["saida"], "esperado": esp, "status": cmp, "erro": r["erro"]})
             if r["erro"] and r["erro"]["tipo"] in ("SyntaxError", "IndentationError", "Tempo"):
                 break
-        passou = len(resultados) == len(q["testes"]) and all(x["status"] in ("exato", "quase") for x in resultados)
+        passou = len(resultados) == len(q["testes"]) and all(
+            x["status"] in ("exato", "quase", "equivalente") for x in resultados
+        )
 
     # Raio-X automático (AST + Eficiência/Big-O) quando o código do aluno passa
     raio_x = None
@@ -835,7 +839,7 @@ def avaliar_simulado(simulado_id: str, respostas: list[dict], duracao_usada_seg:
             res_list = []
             for i, (t, esp) in enumerate(zip(q["testes"], esperados)):
                 r = executor.executar(codigo, t["entrada"], t["chamada"], eco=False)
-                cmp = "erro" if r["erro"] else executor.comparar(r["saida"], esp)
+                cmp = "erro" if r["erro"] else executor.comparar(r["saida"], esp, modo="rigoroso")
                 ok_i = cmp in ("exato", "quase")
                 tot_testes += 1
                 if ok_i:

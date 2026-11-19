@@ -5,10 +5,12 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 FILHO = os.path.join(AQUI, "executor_aluno.py")
@@ -110,8 +112,31 @@ def rastrear(codigo: str, entrada: str = "") -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Comparação de saídas
+# Comparação de saídas (Exato, Quase e Equivalência Lógica)
 # ---------------------------------------------------------------------------
+
+_PALAVRAS_NEUTRAS = {
+    "o", "a", "os", "as", "de", "do", "da", "dos", "das", "e", "em", "no", "na",
+    "nos", "nas", "um", "uma", "para", "ao", "com", "por", "que", "se", "seu",
+    "sua", "foi", "eh", "esta", "sao", "numero", "valor", "resultado", "status",
+    "situacao", "saida", "resposta", "total", "final",
+}
+
+_PARES_OPOSTOS = (
+    ("par", "impar"),
+    ("aprovado", "reprovado"),
+    ("positivo", "negativo"),
+    ("sim", "nao"),
+    ("maior", "menor"),
+    ("valido", "invalido"),
+    ("verdadeiro", "falso"),
+    ("true", "false"),
+    ("ganhou", "perdeu"),
+    ("ativo", "inativo"),
+    ("dentro", "fora"),
+    ("aceito", "recusado"),
+)
+
 
 def normalizar(txt: str) -> list[str]:
     linhas = [l.rstrip() for l in txt.replace("\r\n", "\n").split("\n")]
@@ -122,15 +147,134 @@ def normalizar(txt: str) -> list[str]:
     return linhas
 
 
-def comparar(obtido: str, esperado: str) -> str:
-    """Retorna 'exato', 'quase' (difere só em espaços/maiúsculas) ou 'diferente'."""
+def _sem_acentos(txt: str) -> str:
+    nfkd = unicodedata.normalize("NFKD", txt)
+    return "".join(ch for ch in nfkd if not unicodedata.combining(ch))
+
+
+def _parece_estrutura_exata(linhas: list[str]) -> bool:
+    """Identifica saídas técnicas (listas, dicts, tuplas, slugs, booleanos) que exigem contrato exato."""
+    if not linhas:
+        return True
+    for l in linhas:
+        s = l.strip()
+        if not s:
+            continue
+        if s[0] in "[{('\"" or s in ("True", "False", "None"):
+            return True
+        if " " not in s and ("-" in s or "_" in s) and any(ch.isalpha() for ch in s):
+            return True
+    return False
+
+
+def _tokens_texto(linha: str) -> list[str]:
+    limpa = _sem_acentos(linha).lower()
+    return re.findall(r"[a-z0-9]+", limpa)
+
+
+def _extrair_numeros(linha: str) -> list[float]:
+    brutos = re.findall(r"(?<![a-zA-Z0-9_])-?\d+(?:[.,]\d+)?(?![a-zA-Z0-9_])", linha)
+    out = []
+    for b in brutos:
+        try:
+            out.append(float(b.replace(",", ".")))
+        except ValueError:
+            pass
+    return out
+
+
+def _tem_contradicao(toks_a: set[str], toks_b: set[str]) -> bool:
+    if ("nao" in toks_a) != ("nao" in toks_b):
+        return True
+    for w1, w2 in _PARES_OPOSTOS:
+        if w1 in toks_b and w2 in toks_a and w2 not in toks_b:
+            return True
+        if w2 in toks_b and w1 in toks_a and w1 not in toks_b:
+            return True
+    return False
+
+
+def _eh_equivalente_linha(la: str, lb: str) -> bool:
+    nums_a = _extrair_numeros(la)
+    nums_b = _extrair_numeros(lb)
+    toks_a_list = _tokens_texto(la)
+    toks_b_list = _tokens_texto(lb)
+    toks_a = set(toks_a_list)
+    toks_b = set(toks_b_list)
+
+    if not toks_a_list or not toks_b_list:
+        return False
+    if _tem_contradicao(toks_a, toks_b):
+        return False
+
+    # 1. Saída numérica: mesmos valores calculados (ex.: "Media = 8.5" vs "Média final: 8.50")
+    if nums_b:
+        if len(nums_a) != len(nums_b):
+            return False
+        return all(abs(x - y) <= 1e-6 for x, y in zip(nums_a, nums_b))
+
+    # Se o esperado não tem número, mas o aluno imprimiu números extras, não aprova por equivalência
+    if nums_a:
+        return False
+
+    # 2. Classificação/decisão curta (ex.: "Par", "Aprovado", "Maior de idade")
+    if len(toks_b_list) <= 4:
+        relev_b = [t for t in toks_b_list if t not in _PALAVRAS_NEUTRAS] or toks_b_list
+        return all(t in toks_a for t in relev_b) and len(toks_a_list) <= 10
+
+    # 3. Frase textual com variáveis dinâmicas (ex.: "Bem vindo Iara ao curso de Logica")
+    # Toda palavra com maiúscula no meio da frase (nomes/valores dinâmicos) deve estar presente
+    palavras_orig = re.findall(r"[A-Za-zÀ-ÿ]+", lb)
+    dinamicas = {
+        _sem_acentos(w).lower()
+        for idx, w in enumerate(palavras_orig)
+        if idx > 0 and w[0].isupper()
+    }
+    if not dinamicas.issubset(toks_a):
+        return False
+
+    relev_b = [t for t in toks_b_list if t not in _PALAVRAS_NEUTRAS and len(t) > 1]
+    if not relev_b:
+        return False
+    acertos = sum(1 for t in relev_b if t in toks_a)
+    cobertura = acertos / len(relev_b)
+    return cobertura >= 0.70 and len(toks_a_list) <= len(toks_b_list) * 2 + 3
+
+
+def comparar(obtido: str, esperado: str, modo: str = "flexivel") -> str:
+    """Compara saídas retornando 'exato', 'quase', 'equivalente' ou 'diferente'.
+
+    - modo='rigoroso': exige correspondência exata linha a linha (Entrevista / Modo Rigoroso).
+    - modo='padrao': aceita 'exato' e 'quase' por espaços/maiúsculas (funções e prever).
+    - modo='flexivel': aceita 'exato', 'quase' (acentos/hífens/pontuação cosmética) e
+      'equivalente' (mesmo resultado lógico/numérico com redação própria do aluno).
+    """
     a, b = normalizar(obtido), normalizar(esperado)
     if a == b:
         return "exato"
+    if modo == "rigoroso":
+        return "diferente"
+
     sa = [" ".join(l.split()).lower() for l in a if l.strip()]
     sb = [" ".join(l.split()).lower() for l in b if l.strip()]
     if sa == sb:
         return "quase"
+
+    if modo != "flexivel" or _parece_estrutura_exata(b):
+        return "diferente"
+
+    # Mesmo texto ignorando acentos, hífens e pontuação cosmética
+    ca = [" ".join(_tokens_texto(l)) for l in a if l.strip()]
+    cb = [" ".join(_tokens_texto(l)) for l in b if l.strip()]
+    if ca and ca == cb:
+        return "quase"
+
+    # Equivalência lógica linha a linha (mesmos números/decisões/valores dinâmicos)
+    a_ne = [l for l in a if l.strip()]
+    b_ne = [l for l in b if l.strip()]
+    if len(a_ne) == len(b_ne) and a_ne and all(_eh_equivalente_linha(la, lb) for la, lb in zip(a_ne, b_ne)):
+        return "equivalente"
+
     return "diferente"
 
 

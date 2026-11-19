@@ -70,7 +70,9 @@ def _dojo_dispatch(method, path, query_json, body_json):
             rotas = {
                 "/api/executar": lambda: executor.executar(c.get("codigo", ""), c.get("entrada", ""), "", eco=True),
                 "/api/rastrear": lambda: executor.rastrear(c.get("codigo", ""), c.get("entrada", "")),
-                "/api/verificar": lambda: progresso.verificar(c["id"], c.get("codigo", ""), c.get("resposta")),
+                "/api/verificar": lambda: progresso.verificar(
+                    c["id"], c.get("codigo", ""), c.get("resposta"), bool(c.get("rigoroso", False))
+                ),
                 "/api/dica": lambda: progresso.revelar_dica(c["id"]),
                 "/api/solucao": lambda: progresso.revelar_solucao(c["id"]),
                 "/api/rascunho": lambda: progresso.salvar_rascunho(c["id"], c.get("codigo", "")) or {"ok": True},
